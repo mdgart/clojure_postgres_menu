@@ -7,7 +7,14 @@
             [master-menu.databases.postgres.sql :as sql]))
 
 
-(defn home-page
+;; Defines common interceptors for json
+(def json-common-interceptors [(body-params/body-params) http/json-body])
+
+;; Define other specific interceptors
+
+
+;; Define handles
+(defn get-branch
   [request]
   (ring-resp/response {:result
                           (sql/get-branch-by-node-label db {:node_label "2"})}))
@@ -16,11 +23,9 @@
   [request]
   (ring-resp/response (sql/insert-root db {:label {:EN {:displayName "Title Menu"}}})))
 
-;; Defines interceptors for json
-(def json-common-interceptors [(body-params/body-params) http/json-body])
 
 ;; Routes
-(def routes #{["/" :get (conj json-common-interceptors `home-page)]
+(def routes #{["/getbranch" :get (conj json-common-interceptors `get-branch)]
               ["/addroot" :get (conj json-common-interceptors `insert-root)]})
 
 
