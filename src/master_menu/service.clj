@@ -3,17 +3,25 @@
             [io.pedestal.http.route :as route]
             [io.pedestal.http.body-params :as body-params]
             [ring.util.response :as ring-resp]
-            [cheshire.core :refer :all]))
+            [master-menu.databases.postgres.db :refer [db]]
+            [master-menu.databases.postgres.sql :as sql]))
+
 
 (defn home-page
   [request]
-  (ring-resp/response {:foo "bar" :baz 5}))
+  (ring-resp/response {:result
+                          (sql/get-branch-by-node-label db {:node_label "2"})}))
+
+(defn insert-root
+  [request]
+  (ring-resp/response (sql/insert-root db {:label {:EN {:displayName "Title Menu"}}})))
 
 ;; Defines interceptors for json
 (def json-common-interceptors [(body-params/body-params) http/json-body])
 
 ;; Routes
-(def routes #{["/" :get (conj json-common-interceptors `home-page)]})
+(def routes #{["/" :get (conj json-common-interceptors `home-page)]
+              ["/addroot" :get (conj json-common-interceptors `insert-root)]})
 
 
 ;; Boilerplate
