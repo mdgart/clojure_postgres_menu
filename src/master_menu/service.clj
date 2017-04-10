@@ -11,22 +11,63 @@
 (def json-common-interceptors [(body-params/body-params) http/json-body])
 
 ;; Define other specific interceptors
+;;
+;; Empty
 
+;; insert section_item entries, both root or normal
+(defn create-root [json-params]
+  (let [provider (:provider json-params)
+        mf_account_id (:mf_account_id json-params)]
+    (ring-resp/response
+      (let [result (sql/insert-root db json-params)]
+        (do
+         (sql/insert-root-relations db
+            { :section_item_id (:id (first result))
+              :mf_account_id mf_account_id
+              :provider provider})
+         result)))))
 
-;; Define handles
-(defn get-branch
-  [request]
+(defn create-section-item [json-params]
+ (ring-resp/response
+   (sql/insert-section-item db json-params)))
+
+(defn create-entry
+  [{:keys [json-params] :as request}]
+  (cond
+    (clojure.string/blank? (str (:parent_id json-params))) (create-root json-params)
+    :else (create-section-item json-params)))
+
+;; update section_item entries
+(defn update-entry
+  [{:keys [json-params] :as request}]
+  (ring-resp/response
+    (sql/update-section-item db json-params)))
+
+;; delete section_item entries
+(defn delete-entry
+  [{:keys [path-params] :as request}]
+  (ring-resp/response
+    (do
+     (sql/delete-section-item-branch db path-params)
+     path-params)))
+
+;; Retrieve data
+(defn get-entry
+ [{:keys [path-params] :as request}]
+ (ring-resp/response {:result
+                         (sql/get-branch-by-node db {:node_labels (:node path-params)})}))
+
+(defn find-roots-by-account-id
+  [{:keys [path-params] :as request}]
   (ring-resp/response {:result
-                          (sql/get-branch-by-node-label db {:node_label "2"})}))
-
-(defn insert-root
-  [request]
-  (ring-resp/response (sql/insert-root db {:label {:EN {:displayName "Title Menu"}}})))
-
+                          (sql/find-roots-by-account-id db path-params)}))
 
 ;; Routes
-(def routes #{["/getbranch" :get (conj json-common-interceptors `get-branch)]
-              ["/addroot" :get (conj json-common-interceptors `insert-root)]})
+(def routes #{["/get-entry/:node" :get (conj json-common-interceptors `get-entry)]
+              ["/find-roots-by-account-id/:id" :get (conj json-common-interceptors `find-roots-by-account-id)]
+              ["/create-entry" :post (conj json-common-interceptors `create-entry)]
+              ["/update-entry" :put (conj json-common-interceptors `update-entry)]
+              ["/delete-entry/:id" :delete (conj json-common-interceptors `delete-entry)]})
 
 
 ;; Boilerplate
@@ -54,7 +95,7 @@
               ;; Either :jetty, :immutant or :tomcat (see comments in project.clj)
               ::http/type :jetty
               ;;::http/host "localhost"
-              ::http/port 8080
+              ::http/port 8890
               ;; Options to pass to the container (Jetty)
               ::http/container-options {:h2c? true
                                         :h2? false
