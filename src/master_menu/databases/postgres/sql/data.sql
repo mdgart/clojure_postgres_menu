@@ -80,7 +80,7 @@ SET
   price = :price
 
 
--- :name delete-location-item-branch :! :n
+-- :name delete-location-section-item :! :n
 -- :doc Delete specific location data in a leaf (or branch)
 DELETE FROM location_section_item
 WHERE id = :id
