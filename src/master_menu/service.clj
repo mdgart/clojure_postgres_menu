@@ -51,23 +51,46 @@
      (sql/delete-section-item-branch db path-params)
      path-params)))
 
-;; Retrieve data
+(defn delete-location-section-item
+ [{:keys [path-params] :as request}]
+ (ring-resp/response
+   (do
+    (sql/delete-location-section-item db path-params)
+    path-params)))
+
+;; Retrieve node
 (defn get-entry
  [{:keys [path-params] :as request}]
  (ring-resp/response {:result
                          (sql/get-branch-by-node db {:node_labels (:node path-params)})}))
+
+;; Retrieve node with location specific data
+(defn get-entry-location
+  [{:keys [path-params] :as request}]
+  (ring-resp/response {:result
+                          (sql/get-branch-by-node-with-location-data db {
+                                                                          :node_labels (:node path-params) :mf_location_id (:mf_location_id path-params)})}))
 
 (defn find-roots-by-account-id
   [{:keys [path-params] :as request}]
   (ring-resp/response {:result
                           (sql/find-roots-by-account-id db path-params)}))
 
+;; upsert section_item entries
+(defn upsert-location-section-item
+  [{:keys [json-params] :as request}]
+  (ring-resp/response
+    (sql/upsert-location-section-item db json-params)))
+
 ;; Routes
 (def routes #{["/get-entry/:node" :get (conj json-common-interceptors `get-entry)]
+              ["/get-entry/:node/:mf_location_id" :get (conj json-common-interceptors `get-entry-location)]
               ["/find-roots-by-account-id/:id" :get (conj json-common-interceptors `find-roots-by-account-id)]
               ["/create-entry" :post (conj json-common-interceptors `create-entry)]
               ["/update-entry" :put (conj json-common-interceptors `update-entry)]
-              ["/delete-entry/:id" :delete (conj json-common-interceptors `delete-entry)]})
+              ["/delete-entry/:id" :delete (conj json-common-interceptors `delete-entry)]
+              ["/upsert-location-section-item" :put (conj json-common-interceptors `upsert-location-section-item)]
+              ["/delete-location-section-item" :delete (conj json-common-interceptors `delete-location-section-item)]})
 
 
 ;; Boilerplate

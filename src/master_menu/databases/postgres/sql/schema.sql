@@ -15,28 +15,28 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- Name: ltree; Type: EXTENSION; Schema: -; Owner:
+-- Name: ltree; Type: EXTENSION; Schema: -; Owner: 
 --
 
 CREATE EXTENSION IF NOT EXISTS ltree WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION ltree; Type: COMMENT; Schema: -; Owner:
+-- Name: EXTENSION ltree; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION ltree IS 'data type for hierarchical tree-like structures';
@@ -149,10 +149,10 @@ CREATE TABLE location_section_item (
     id integer NOT NULL,
     mf_location_id text,
     hide boolean DEFAULT false,
-    money jsonb,
+    price jsonb,
     section_item_id integer,
     status status DEFAULT 'New'::status,
-    "timestamp" timestamp with time zone
+    "timestamp" timestamp with time zone DEFAULT now()
 );
 
 
@@ -256,7 +256,7 @@ SELECT pg_catalog.setval('account_section_item_id_seq', 1, false);
 -- Data for Name: location_section_item; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY location_section_item (id, mf_location_id, hide, money, section_item_id, status, "timestamp") FROM stdin;
+COPY location_section_item (id, mf_location_id, hide, price, section_item_id, status, "timestamp") FROM stdin;
 \.
 
 
@@ -359,7 +359,7 @@ ALTER TABLE ONLY section_item
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: postgres
+-- Name: public; Type: ACL; Schema: -; Owner: mdgart
 --
 
 GRANT ALL ON SCHEMA public TO postgres;
@@ -368,3 +368,4 @@ GRANT ALL ON SCHEMA public TO postgres;
 --
 -- PostgreSQL database dump complete
 --
+
