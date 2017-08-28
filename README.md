@@ -1,4 +1,4 @@
-# master_menu
+# Clojure Menu API
 
 FIXME
 

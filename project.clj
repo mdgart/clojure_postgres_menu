@@ -1,6 +1,6 @@
 (defproject master_menu "0.0.1-SNAPSHOT"
   :description "A generic microservice menu manager."
-  :url "https://github.com/MomentFeedInc/master_menu"
+  :url "https://github.com/mdgart/clojure_postgres_menu"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [io.pedestal/pedestal.service "0.5.2"]
 
